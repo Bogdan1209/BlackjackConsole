@@ -13,6 +13,7 @@ namespace BlackjackConsole
         public int currentRate { get; set; }
         public List<string> customerCards { get; set; }
 
+        //выбор к-ва денег у пользователя, которые он может поставить
         public void ChoiceBank()
         {
             int number;
@@ -48,6 +49,7 @@ namespace BlackjackConsole
                 }
             }
         }
+
         public int ChoiceValueOfAse()
         {
             while (true)

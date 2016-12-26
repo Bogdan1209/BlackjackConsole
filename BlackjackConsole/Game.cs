@@ -27,15 +27,18 @@ namespace BlackjackConsole
 
         public void StartGame()
         {
-            bool userTakeCard = true;
             CroupierResult croupierResult = new CroupierResult();
+            //нужнали еще одна карта крупье/юзеру
+            bool userTakeCard = true;
             bool croupierTakeCard = true;
-            int userAce = 0;
-            int croupierAce = 0;
+            //Очки за тузов
+            int userAcePoint = 0;
+            int croupierAcePoint = 0;
 
 
             user.ChoiceBank();
             user.ChangeRate();
+
             for (int i = 0; i < 2; i++)
             {
                 if (currentDeck.Count <= 0)
@@ -48,6 +51,7 @@ namespace BlackjackConsole
             }
             croupier.CroupierCards.Add(croupier.GetCard(currentDeck));
             ShowCards();
+
             while (userTakeCard)
             {
                 userTakeCard = TakeCard();
@@ -56,17 +60,17 @@ namespace BlackjackConsole
             foreach (string str in user.customerCards)
             if (str == "A")
             {
-                userAce += user.ChoiceValueOfAse();
+                userAcePoint += user.ChoiceValueOfAse();
             }
 
-            int[] scoupeArray = CountScoupe(userAce, croupierAce);
+            int[] scoupeArray = CountPoints(userAcePoint, croupierAcePoint);
 
             while (croupierTakeCard)
             {
                 croupierResult = croupier.TakeCard(currentDeck, scoupeArray[0], scoupeArray[1]);
-                scoupeArray = CountScoupe(userAce, croupierAce);
+                scoupeArray = CountPoints(userAcePoint, croupierAcePoint);
                 croupierTakeCard = croupierResult.NeedCard;
-                croupierAce = croupierResult.CroupierAce;
+                croupierAcePoint = croupierResult.CroupierAce;
             }
             CheckWinner(scoupeArray[0], scoupeArray[1]);
         }
@@ -106,7 +110,7 @@ namespace BlackjackConsole
             }
         }
 
-        private int[] CountScoupe(int userAce, int croupieAce)
+        private int[] CountPoints(int userAce, int croupieAce)
         {
             int userScoupe = 0;
             int croupierScoupe = 0;

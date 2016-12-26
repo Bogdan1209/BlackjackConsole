@@ -12,6 +12,9 @@ namespace BlackjackConsole
     class Croupier:ICroupier
     {
         ICustomer user;
+        public List<string> CroupierCards { get; set; }
+        public Dictionary<string, int> cardsValue { get; set; }
+
         public Croupier()
         {
             user = new Customer();
@@ -20,11 +23,11 @@ namespace BlackjackConsole
             { "7", 7 }, { "8",8 },{ "9",9 }, { "10",10 }, { "J", 10 }, { "Q", 10 }, { "K",10 }, { "A",0 } };
         }
 
-        public List<string> CroupierCards { get; set; }
-        public Dictionary<string, int> cardsValue { get; set; }
+        
 
-        int croupierAce = 0;
+        int croupierAcePoint = 0;
         static int currentCountOfDecks;
+
         public int NumberOfDecks()
         {
             int countOfDecks = 0;
@@ -66,6 +69,7 @@ namespace BlackjackConsole
             currentDeck.RemoveAt(0);
             return card;
         }
+
         private int ChoiceValueOfAse(int croupierScoupe)
         {
            if (croupierScoupe + 11 > 21)
@@ -83,16 +87,16 @@ namespace BlackjackConsole
                 CroupierCards.Add(GetCard(currentDeck));
                 if (CroupierCards[CroupierCards.Count - 1] == "A")
                 {
-                    croupierAce += ChoiceValueOfAse(croupierScoupe);
+                    croupierAcePoint += ChoiceValueOfAse(croupierScoupe);
                 }
                 crupierResult.NeedCard = true;
-                crupierResult.CroupierAce = croupierAce;
+                crupierResult.CroupierAce = croupierAcePoint;
                 return crupierResult;
             }
             else
             {
                 crupierResult.NeedCard = false;
-                crupierResult.CroupierAce = croupierAce;
+                crupierResult.CroupierAce = croupierAcePoint;
                 return crupierResult;
             }
                 
