@@ -43,6 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConsoleOutput.cs" />
     <Compile Include="ExtensionMethods.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="Interfaces\ICroupier.cs" />
@@ -50,6 +51,9 @@
     <Compile Include="Interfaces\IGame.cs" />
     <Compile Include="LogicOfCroupier.cs" />
     <Compile Include="LogicOfCustomer.cs" />
+    <Compile Include="Models\CroupierModel.cs" />
+    <Compile Include="Models\CroupierResult.cs" />
+    <Compile Include="Models\CustomerModel.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

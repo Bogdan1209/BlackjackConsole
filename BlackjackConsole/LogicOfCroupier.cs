@@ -6,21 +6,26 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BlackjackConsole.Interfaces;
+using BlackjackConsole.Models;
 
 namespace BlackjackConsole
 {
     class Croupier:ICroupier
     {
         ICustomer user;
-        public List<string> CroupierCards { get; set; }
-        public Dictionary<string, int> cardsValue { get; set; }
+        CroupierModel CroupM;
+        CustomerModel CustM;
+        ConsoleOutput ConOut;
 
         public Croupier()
         {
             user = new Customer();
-            user.customerCards = new List<string>();
-            cardsValue = new Dictionary<string, int> { { "2",2 }, { "3", 3 }, { "4", 4 }, { "5", 5 }, { "6", 6 },
-            { "7", 7 }, { "8",8 },{ "9",9 }, { "10",10 }, { "J", 10 }, { "Q", 10 }, { "K",10 }, { "A",0 } };
+            CustM = new CustomerModel();
+            CroupM = new CroupierModel();
+            ConOut = new ConsoleOutput();
+            CustM.customerCards = new List<string>();
+            CroupM.CroupierCards = new List<string>();
+            
         }
 
         
@@ -31,7 +36,7 @@ namespace BlackjackConsole
         public int NumberOfDecks()
         {
             int countOfDecks = 0;
-            Console.WriteLine("Coice quantity of card decks \nFrom 1 to 6");
+            ConOut.QuantityOfDecks();
             while (true)
             {
                 try
@@ -42,7 +47,7 @@ namespace BlackjackConsole
                 }
                 catch (Exception)
                 {
-                    Console.WriteLine("Incorrectly entered data, try again!");
+                    ConOut.IncorrectlyData();
                 }
             }
             return countOfDecks;
@@ -51,11 +56,11 @@ namespace BlackjackConsole
         public List<string> CreateDeck()
         {
             const int COUNT_OF_SUIR = 4;
-            IEnumerable<string> newDecks = new List<string>(cardsValue.Keys);
+            IEnumerable<string> newDecks = new List<string>(CroupM.cardsValue.Keys);
 
             for (int i = 1; i < currentCountOfDecks * COUNT_OF_SUIR; i++)
             {
-                newDecks = newDecks.Concat(cardsValue.Keys);
+                newDecks = newDecks.Concat(CroupM.cardsValue.Keys);
             }
             var Deck = newDecks.ToList();
             Deck.Shuffle();
@@ -74,32 +79,32 @@ namespace BlackjackConsole
         {
            if (croupierScoupe + 11 > 21)
                 return 1;
-            else
-                return 11;
+           return 11;
         }
 
+        private int CheckAce(int croupierScoupe)
+        {
+            if (CroupM.CroupierCards[CroupM.CroupierCards.Count - 1] == "A")
+            {
+                return croupierAcePoint += ChoiceValueOfAse(croupierScoupe);
+            }
+            return croupierScoupe;
+        }
 
         public CroupierResult TakeCard(List<string> currentDeck, int userScoupe, int croupierScoupe)
         {
             CroupierResult crupierResult = new CroupierResult();
             if (croupierScoupe < 17 && croupierScoupe < userScoupe)
             {
-                CroupierCards.Add(GetCard(currentDeck));
-                if (CroupierCards[CroupierCards.Count - 1] == "A")
-                {
-                    croupierAcePoint += ChoiceValueOfAse(croupierScoupe);
-                }
+                CroupM.CroupierCards.Add(GetCard(currentDeck));
+                croupierAcePoint = CheckAce(croupierScoupe);
                 crupierResult.NeedCard = true;
                 crupierResult.CroupierAce = croupierAcePoint;
                 return crupierResult;
             }
-            else
-            {
-                crupierResult.NeedCard = false;
-                crupierResult.CroupierAce = croupierAcePoint;
-                return crupierResult;
-            }
-                
+            crupierResult.NeedCard = false;
+            crupierResult.CroupierAce = croupierAcePoint;
+            return crupierResult;
 
         }
 

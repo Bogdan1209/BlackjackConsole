@@ -4,25 +4,29 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BlackjackConsole.Interfaces;
+using BlackjackConsole.Models;
 
 namespace BlackjackConsole
 {
     class Customer:ICustomer
     {
-        public int customerBank { get; set; }
-        public int currentRate { get; set; }
-        public List<string> customerCards { get; set; }
-
+        CustomerModel CustM;
+        ConsoleOutput ConOut;
+        public Customer()
+        {
+            CustM = new CustomerModel();
+            ConOut = new ConsoleOutput();
+        }
         //выбор к-ва денег у пользователя, которые он может поставить
         public void ChoiceBank()
         {
             int number;
             while (true) {
-                Console.WriteLine("Choice amount of your money");
+                ConOut.ChoiceMoney();
                 bool result = Int32.TryParse(Console.ReadLine(), out number);
                 if (result)
                 {
-                    customerBank = number;
+                    CustM.customerBank = number;
                     return;
                 }
             }
@@ -33,17 +37,17 @@ namespace BlackjackConsole
             int number;
             while (true)
             {
-                Console.WriteLine("Choice your rate");
+                ConOut.ChoiceRate();
                 bool result = Int32.TryParse(Console.ReadLine(), out number);
                 if (result)
                 {
-                    if (number > customerBank)
+                    if (number > CustM.customerBank)
                     {
-                        Console.WriteLine("Your rate higher then your bank");
+                        ConOut.HigherRate();
                     }
                     else
                     {
-                        currentRate = number;
+                        CustM.currentRate = number;
                         return;
                     }
                 }
@@ -54,7 +58,7 @@ namespace BlackjackConsole
         {
             while (true)
             {
-                Console.WriteLine("Choice value of Ace\n1 or 11");
+                ConOut.ChoiceAce();
                 var inputValue = Console.ReadLine();
                 switch (inputValue)
                 {
@@ -63,7 +67,7 @@ namespace BlackjackConsole
                     case "11":
                         return 11;
                     default:
-                        Console.WriteLine("Make a choise");
+                        ConOut.MakeChoice();
                         break;
                 }
             }

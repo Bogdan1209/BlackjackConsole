@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using BlackjackConsole.Interfaces;
+using BlackjackConsole.Models;
 
 namespace BlackjackConsole
 {
@@ -13,58 +14,53 @@ namespace BlackjackConsole
         List<string> currentDeck { get; set; }
         ICroupier croupier;
         ICustomer user;
+        CustomerModel CustM;
+        CroupierModel CroupM;
+        ConsoleOutput ConOut;
+        int userAcePoint = 0;
 
         public Game(List<string> currentDeck)
         {
+            CustM = new CustomerModel();
+            CroupM = new CroupierModel();
             croupier = new Croupier();
             user = new Customer();
+            ConOut = new ConsoleOutput();
             this.currentDeck = currentDeck;
-            user.customerCards = new List<string>();
-            croupier.CroupierCards = new List<string>();
+            CustM.customerCards = new List<string>();
+            CroupM.CroupierCards = new List<string>();
 
             StartGame();
         }
 
         public void StartGame()
-        {
-            CroupierResult croupierResult = new CroupierResult();
-            //нужнали еще одна карта крупье/юзеру
-            bool userTakeCard = true;
-            bool croupierTakeCard = true;
+        {     
             //Очки за тузов
-            int userAcePoint = 0;
-            int croupierAcePoint = 0;
+
 
 
             user.ChoiceBank();
             user.ChangeRate();
+            GetCards();
 
-            for (int i = 0; i < 2; i++)
-            {
-                if (currentDeck.Count <= 0)
-                {
-                    currentDeck = croupier.CreateDeck();
+            
 
-                }
-                
-                user.customerCards.Add(croupier.GetCard(currentDeck));
-            }
-            croupier.CroupierCards.Add(croupier.GetCard(currentDeck));
-            ShowCards();
-
-            while (userTakeCard)
-            {
-                userTakeCard = TakeCard();
-            }
-
-            foreach (string str in user.customerCards)
+            foreach (string str in CustM.customerCards)
             if (str == "A")
             {
                 userAcePoint += user.ChoiceValueOfAse();
             }
+            int[] scoupeArray = CroupierTakeCards();
 
+            CheckWinner(scoupeArray[0], scoupeArray[1]);
+        }
+
+        public int[] CroupierTakeCards()
+        {
+            int croupierAcePoint = 0;
+            CroupierResult croupierResult = new CroupierResult();
+            bool croupierTakeCard = true;
             int[] scoupeArray = CountPoints(userAcePoint, croupierAcePoint);
-
             while (croupierTakeCard)
             {
                 croupierResult = croupier.TakeCard(currentDeck, scoupeArray[0], scoupeArray[1]);
@@ -72,19 +68,40 @@ namespace BlackjackConsole
                 croupierTakeCard = croupierResult.NeedCard;
                 croupierAcePoint = croupierResult.CroupierAce;
             }
-            CheckWinner(scoupeArray[0], scoupeArray[1]);
+            return scoupeArray;
+        }
+
+        public void GetCards()
+        {
+            bool userTakeCard = true;
+            for (int i = 0; i < 2; i++)
+            {
+                if (currentDeck.Count <= 0)
+                {
+                    currentDeck = croupier.CreateDeck();
+
+                }
+
+                CustM.customerCards.Add(croupier.GetCard(currentDeck));
+            }
+            CroupM.CroupierCards.Add(croupier.GetCard(currentDeck));
+            ShowCards();
+            while (userTakeCard)
+            {
+                userTakeCard = TakeCard();
+            }
         }
 
        public bool TakeCard()
         {
-            Console.WriteLine("\nDo you wanna take a card?\nY/N");
+            ConOut.TakeCard();
             var result = Console.ReadKey().Key;
             while (true)
             {
                 switch (result)
                 {
                     case ConsoleKey.Y:
-                        user.customerCards.Add(croupier.GetCard(currentDeck));
+                        CustM.customerCards.Add(croupier.GetCard(currentDeck));
                         ShowCards();
                         return true;                    
                     case ConsoleKey.N:
@@ -98,13 +115,13 @@ namespace BlackjackConsole
 
         private void ShowCards()
         {
-            Console.WriteLine($"\nYour cards:");
-            foreach (string str in user.customerCards)
+            ConOut.YouCards();
+            foreach (string str in CustM.customerCards)
             {
                 Console.Write(str + " ");
             }
-            Console.WriteLine($"\nCroupier cards: ");
-            foreach (string str in croupier.CroupierCards)
+            ConOut.CroupierCards();
+            foreach (string str in CroupM.CroupierCards)
             {
                 Console.Write(str + " ");
             }
@@ -115,13 +132,13 @@ namespace BlackjackConsole
             int userScoupe = 0;
             int croupierScoupe = 0;
 
-            foreach (string str in user.customerCards)
+            foreach (string str in CustM.customerCards)
             {
-                userScoupe += croupier.cardsValue[str];
+                userScoupe += CroupM.cardsValue[str];
             }
-            foreach (string str in croupier.CroupierCards)
+            foreach (string str in CroupM.CroupierCards)
             {
-                croupierScoupe += croupier.cardsValue[str];
+                croupierScoupe += CroupM.cardsValue[str];
             }
 
             userScoupe += userAce;
@@ -138,14 +155,14 @@ namespace BlackjackConsole
         {
             if (userScoupe == 21)
             {
-                Console.WriteLine("\nWin!");
-                user.customerBank += user.currentRate;
+                ConOut.Win();
+                CustM.customerBank += CustM.currentRate;
                 return true;
             }
             if (croupierScoupe == 21)
             {
-                Console.WriteLine("\nLoose!");
-                user.customerBank -= user.currentRate;
+                ConOut.Loose();
+                CustM.customerBank -= CustM.currentRate;
                 return true;
             }
             return false;
@@ -155,19 +172,19 @@ namespace BlackjackConsole
         {
             if(userScoupe > croupierScoupe && userScoupe < 21 || croupierScoupe > 21)
             {
-                Console.WriteLine("\nWin!");
-                user.customerBank += user.currentRate;
+                ConOut.Win();
+                CustM.customerBank += CustM.currentRate;
+                return;
                 
             }
-            else if(croupierScoupe > userScoupe && croupierScoupe < 21 || userScoupe > 21)
+            if(croupierScoupe > userScoupe && croupierScoupe < 21 || userScoupe > 21)
             {
-                Console.WriteLine("\nLoose!");
-                user.customerBank -= user.currentRate;
+                ConOut.Loose();
+                CustM.customerBank -= CustM.currentRate;
+                return;
             }
-            else
-            {
-                Console.WriteLine("\nThe game ended in a draw");
-            }
+
+            ConOut.Draw();
         }
 
 

@@ -16,9 +16,5 @@ namespace BlackjackConsole
         }
     }
 
-    public class CroupierResult
-    {
-        public bool NeedCard { get; set; }
-        public int CroupierAce { get; set; }
-    }
+   
 }

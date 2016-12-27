@@ -14,10 +14,7 @@ namespace BlackjackConsole
             {
                 return number;
             }
-            else
-            {
-                throw new Exception();
-            }
+            throw new Exception();
         }
 
         public static void Shuffle<T>(this IList<T> list)
